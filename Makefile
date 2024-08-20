@@ -10,8 +10,11 @@ install:
 build:
 	./build.sh
 
+test-build:
+	./test_build.sh
+
 dev:
-	poetry run flask --app page_analyzer:app run
+	poetry run flask --app page_analyzer:app --debug run
 
 PORT ?= 8000
 start:
