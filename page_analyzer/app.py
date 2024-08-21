@@ -14,7 +14,7 @@ app = Flask(__name__)
 load_dotenv()
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 database_url = os.getenv("DATABASE_URL")
-conn = psycopg2.connect(database_url, cursor_factory=NamedTupleCursor)
+conn = psycopg2.connect(database_url, sslmode="disable", cursor_factory=NamedTupleCursor)
 
 
 @app.get("/")
