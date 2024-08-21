@@ -19,7 +19,18 @@ conn = psycopg2.connect(database_url, sslmode="disable", cursor_factory=NamedTup
 
 @app.get("/")
 def index():
-    return render_template("index.html")
+    messages = get_flashed_messages(with_categories=True)
+    url = request.args.get("url")
+    if not url:
+        return render_template(
+            "index.html",
+            messages=messages,
+        )
+    return render_template(
+        "index.html",
+        messages=messages,
+        url=url,
+    )
 
 
 @app.get("/urls")
@@ -55,10 +66,13 @@ def post_urls():
     url = request.form.get("url")
     # TODO: add validation for url: must contain scheme
     if not validators.url(url):
-        return render_template(
-            "index.html",
-            url=url,
-        ), 422
+        # error case
+        flash("Некорректный URL", "error")
+        return redirect(url_for("index", url=url)), 302
+        # return render_template(
+        #     "index.html",
+        #     url=url,
+        # ), 422
     else:
         url_parsed = urlparse(url)
         url_normalized = f"{url_parsed.scheme}://{url_parsed.netloc}"
