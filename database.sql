@@ -4,13 +4,13 @@ CREATE TABLE IF NOT EXISTS urls (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS checks (
+CREATE TABLE IF NOT EXISTS url_checks (
     id SERIAL PRIMARY KEY,
-    response_code INT,
+    url_id INT,
+    status_code INT,
     h1 VARCHAR(255),
     title VARCHAR(255),
     description VARCHAR(255),
-    created_date DATE DEFAULT CURRENT_DATE,
-    url_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (url_id) REFERENCES urls(id)
 );

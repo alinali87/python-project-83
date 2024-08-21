@@ -40,10 +40,10 @@ def get_urls():
             SELECT DISTINCT
                 u.id,
                 u.name,
-                FIRST_VALUE(c.created_date) OVER (PARTITION BY u.id ORDER BY c.created_date DESC) AS check_date,
-                FIRST_VALUE(c.response_code) OVER (PARTITION BY u.id ORDER BY c.created_date DESC) AS check_code
+                DATE(FIRST_VALUE(c.created_at) OVER (PARTITION BY u.id ORDER BY c.created_at DESC)) AS check_date,
+                FIRST_VALUE(c.status_code) OVER (PARTITION BY u.id ORDER BY c.created_at DESC) AS check_code
             FROM urls u
-            JOIN checks c ON u.id = c.url_id
+            JOIN url_checks c ON u.id = c.url_id
             ORDER BY u.id DESC
         """
         cursor.execute(sql)
@@ -115,12 +115,23 @@ def get_url(id):
         }
     conn.commit()
     with conn.cursor() as cursor:
-        sql = "SELECT * FROM checks WHERE url_id=%s ORDER BY id DESC"
+        sql = """
+                SELECT
+                    id,
+                    status_code,
+                    h1,
+                    title,
+                    description,
+                    DATE(created_at) AS created_date 
+                FROM url_checks
+                WHERE url_id=%s
+                ORDER BY id DESC
+        """
         cursor.execute(sql, (id,))
         rs = cursor.fetchall()
         checks = [{
             "id": r.id,
-            "response_code": r.response_code,
+            "status_code": r.status_code,
             "h1": r.h1,
             "title": r.title,
             "description": r.description,
@@ -145,15 +156,15 @@ def post_url_check(id):
     check = parse_response(response)
     check["url_id"] = id
     print("Check: ", check)
-    if check["response_code"] != 200:
+    if check["status_code"] != 200:
         flash("Произошла ошибка при проверке", "error")
         return redirect(url_for("get_url", id=id))
     else:
         with conn.cursor() as cursor:
             try:
                 sql = """
-                        INSERT INTO checks (response_code, h1, title, description, url_id)
-                        VALUES (%(response_code)s, %(h1)s, %(title)s, %(description)s, %(url_id)s);
+                        INSERT INTO url_checks (status_code, h1, title, description, url_id)
+                        VALUES (%(status_code)s, %(h1)s, %(title)s, %(description)s, %(url_id)s);
                 """
                 cursor.execute(sql, check)
                 conn.commit()
