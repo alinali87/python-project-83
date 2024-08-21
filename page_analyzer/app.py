@@ -6,6 +6,7 @@ import psycopg2
 from psycopg2.errors import UniqueViolation
 from psycopg2.extras import NamedTupleCursor
 import validators
+from requests.exceptions import HTTPError
 
 from page_analyzer.utils import send_request, parse_response
 
@@ -64,7 +65,6 @@ def get_urls():
 @app.post("/urls")
 def post_urls():
     url = request.form.get("url")
-    # TODO: add validation for url: must contain scheme
     if not validators.url(url):
         # error case
         flash("Некорректный URL", "error")
@@ -152,25 +152,27 @@ def post_url_check(id):
         cursor.execute(sql, (id,))
         r = cursor.fetchone()
     url = r.name
-    response = send_request(url)
+    try:
+        response = send_request(url)
+        response.raise_for_status()
+    except HTTPError as e:
+        print("Got error during the request: ", e)
+        flash("Произошла ошибка при проверке", "error")
+        return redirect(url_for("get_url", id=id))
     check = parse_response(response)
     check["url_id"] = id
     print("Check: ", check)
-    if check["status_code"] != 200:
-        flash("Произошла ошибка при проверке", "error")
-        return redirect(url_for("get_url", id=id))
-    else:
-        with conn.cursor() as cursor:
-            try:
-                sql = """
-                        INSERT INTO url_checks (status_code, h1, title, description, url_id)
-                        VALUES (%(status_code)s, %(h1)s, %(title)s, %(description)s, %(url_id)s);
-                """
-                cursor.execute(sql, check)
-                conn.commit()
-                return redirect(url_for("get_url", id=id))
-            except psycopg2.Error as e:
-                print("Got error from psycopg2: ", e)
-                conn.rollback()
-                flash("Произошла ошибка при проверке", "error")   # TODO: this is error when inserting to PG, use another message?
-                return redirect(url_for("get_url", id=id))
+    with conn.cursor() as cursor:
+        try:
+            sql = """
+                INSERT INTO url_checks (status_code, h1, title, description, url_id)
+                VALUES (%(status_code)s, %(h1)s, %(title)s, %(description)s, %(url_id)s);
+            """
+            cursor.execute(sql, check)
+            conn.commit()
+            return redirect(url_for("get_url", id=id))
+        except psycopg2.Error as e:
+            print("Got error from psycopg2: ", e)
+            conn.rollback()
+            flash("Произошла ошибка при проверке", "error")   # TODO: this is error when inserting to PG, use another message?
+            return redirect(url_for("get_url", id=id))

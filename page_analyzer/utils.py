@@ -8,16 +8,6 @@ def send_request(url: str) -> Response:
 
 
 def parse_response(response: Response) -> dict:
-    # Get the response code
-    status_code = response.status_code
-    if status_code != 200:
-        return {
-            "status_code": status_code,
-            "title": "",
-            "h1": "",
-            "description": "",
-        }
-
     # Parse the HTML content using BeautifulSoup
     soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -28,11 +18,11 @@ def parse_response(response: Response) -> dict:
     h1 = soup.find('h1').string if soup.find('h1') else ''
 
     # Print the extracted information
-    print(f"Status Code: {status_code}")
+    print(f"Status Code: {response.status_code}")
     print(f"Title: {title}")
     print(f"First h1 Tag: {h1}")
     return {
-        "status_code": status_code,
+        "status_code": response.status_code,
         "title": title,
         "h1": h1,
         "description": "",   # TODO: what must be in description?
