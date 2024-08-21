@@ -99,7 +99,7 @@ def post_urls():
             return redirect(url_for("get_url", id=r.id))
 
 
-@app.get("/urls/<id>")
+@app.get("/urls/<int:id>")
 def get_url(id):
     print("id: ", id)
     messages = get_flashed_messages(with_categories=True)
@@ -145,7 +145,7 @@ def get_url(id):
     )
 
 
-@app.post("/urls/<id>/checks")
+@app.post("/urls/<int:id>/checks")
 def post_url_check(id):
     with conn.cursor() as cursor:
         sql = "SELECT name FROM urls WHERE id=%s"
