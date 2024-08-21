@@ -122,7 +122,7 @@ def get_url(id):
                     h1,
                     title,
                     description,
-                    DATE(created_at) AS created_date 
+                    DATE(created_at) AS created_date
                 FROM url_checks
                 WHERE url_id=%s
                 ORDER BY id DESC
@@ -170,9 +170,11 @@ def post_url_check(id):
             """
             cursor.execute(sql, check)
             conn.commit()
+            flash("Страница успешно проверена", "success")
             return redirect(url_for("get_url", id=id))
         except psycopg2.Error as e:
             print("Got error from psycopg2: ", e)
             conn.rollback()
-            flash("Произошла ошибка при проверке", "error")   # TODO: this is error when inserting to PG, use another message?
+            # TODO: this is error when inserting to PG, use another message?
+            flash("Произошла ошибка при проверке", "error")
             return redirect(url_for("get_url", id=id))

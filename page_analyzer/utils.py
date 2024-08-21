@@ -27,4 +27,3 @@ def parse_response(response: Response) -> dict:
         "h1": h1,
         "description": "",   # TODO: what must be in description?
     }
-
