@@ -137,6 +137,7 @@ def get_url(id):
             "description": r.description,
             "created_date": r.created_date,
         } for r in rs]
+    conn.commit()
     return render_template(
         "url.html",
         url=url,
@@ -151,6 +152,7 @@ def post_url_check(id):
         sql = "SELECT name FROM urls WHERE id=%s"
         cursor.execute(sql, (id,))
         r = cursor.fetchone()
+    conn.commit()
     url = r.name
     try:
         response = send_request(url)
