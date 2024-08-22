@@ -44,7 +44,7 @@ def get_urls():
                 DATE(FIRST_VALUE(c.created_at) OVER (PARTITION BY u.id ORDER BY c.created_at DESC)) AS check_date,
                 FIRST_VALUE(c.status_code) OVER (PARTITION BY u.id ORDER BY c.created_at DESC) AS check_code
             FROM urls u
-            JOIN url_checks c ON u.id = c.url_id
+            LEFT JOIN url_checks c ON u.id = c.url_id
             ORDER BY u.id DESC
         """
         cursor.execute(sql)
