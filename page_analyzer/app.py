@@ -6,7 +6,7 @@ import psycopg2
 from psycopg2.errors import UniqueViolation
 from psycopg2.extras import NamedTupleCursor
 import validators
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, ConnectionError
 
 from page_analyzer.utils import send_request, parse_response
 
@@ -157,7 +157,7 @@ def post_url_check(id):
     try:
         response = send_request(url)
         response.raise_for_status()
-    except HTTPError as e:
+    except (HTTPError, ConnectionError) as e:
         print("Got error during the request: ", e)
         flash("Произошла ошибка при проверке", "msg-error")
         return redirect(url_for("get_url", id=id))
