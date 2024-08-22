@@ -83,7 +83,7 @@ def post_urls():
                 r = cursor.fetchone()
 
             conn.commit()
-            flash('Страница успешно добавлена', 'success')
+            flash('Страница успешно добавлена', 'msg-success')
             return redirect(url_for("get_url", id=r.id))
         except UniqueViolation as e:
             print(e)
@@ -95,7 +95,7 @@ def post_urls():
                 r = cursor.fetchone()
 
             conn.commit()
-            flash('Страница уже существует!', 'success')  # TODO: use another type, duplicate?
+            flash('Страница уже существует!', 'msg-exists')  # TODO: use another type, duplicate?
             return redirect(url_for("get_url", id=r.id))
 
 
@@ -157,7 +157,7 @@ def post_url_check(id):
         response.raise_for_status()
     except HTTPError as e:
         print("Got error during the request: ", e)
-        flash("Произошла ошибка при проверке", "error")
+        flash("Произошла ошибка при проверке", "msg-error")
         return redirect(url_for("get_url", id=id))
     check = parse_response(response)
     check["url_id"] = id
@@ -170,11 +170,11 @@ def post_url_check(id):
             """
             cursor.execute(sql, check)
             conn.commit()
-            flash("Страница успешно проверена", "success")
+            flash("Страница успешно проверена", "msg-success")
             return redirect(url_for("get_url", id=id))
         except psycopg2.Error as e:
             print("Got error from psycopg2: ", e)
             conn.rollback()
             # TODO: this is error when inserting to PG, use another message?
-            flash("Произошла ошибка при проверке", "error")
+            flash("Произошла ошибка при проверке", "msg-error")
             return redirect(url_for("get_url", id=id))
