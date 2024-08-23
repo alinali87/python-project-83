@@ -28,7 +28,6 @@ def redirect_with_422(location):
         f'window.location.href="{location}";'
         f'</script></head><body>'
         f'<p>If you are not redirected, <a href="{location}">click here</a>.</p>'
-        f'<p>Некорректный URL</p>'
         f'</body></html>',
         422
     )
