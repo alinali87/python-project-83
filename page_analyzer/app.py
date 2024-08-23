@@ -1,4 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages
+from flask import (
+    Flask, render_template, request, redirect,
+    url_for, flash, get_flashed_messages, Response, make_response
+)
 import os
 from dotenv import load_dotenv
 from urllib.parse import urlparse
@@ -16,6 +19,19 @@ load_dotenv()
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 database_url = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(database_url, sslmode="disable", cursor_factory=NamedTupleCursor)
+
+
+def redirect_with_422(location):
+    # Create a response with JavaScript to redirect and set the 422 status code
+    response = make_response(
+        f'<html><head><script type="text/javascript">'
+        f'window.location.href="{location}";'
+        f'</script></head><body>'
+        f'<p>If you are not redirected, <a href="{location}">click here</a>.</p>'
+        f'</body></html>',
+        422
+    )
+    return response
 
 
 @app.get("/")
@@ -67,12 +83,8 @@ def post_urls():
     url = request.form.get("url")
     if not validators.url(url):
         # error case
-        flash("Некорректный URL", "error")
-        return redirect(url_for("index", url=url)), 302
-        # return render_template(
-        #     "index.html",
-        #     url=url,
-        # ), 422
+        flash("Некорректный URL", "msg-error")
+        return redirect_with_422(url_for("index", url=url))
     else:
         url_parsed = urlparse(url)
         url_normalized = f"{url_parsed.scheme}://{url_parsed.netloc}"
