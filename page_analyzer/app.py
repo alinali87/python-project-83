@@ -22,16 +22,22 @@ conn = psycopg2.connect(database_url, sslmode="disable", cursor_factory=NamedTup
 
 
 def redirect_with_422(location):
-    # Create a response with JavaScript to redirect and set the 422 status code
-    response = make_response(
-        f'<html><head><script type="text/javascript">'
-        f'window.location.href="{location}";'
-        f'</script></head><body>'
-        f'<p>If you are not redirected, <a href="{location}">click here</a>.</p>'
-        f'</body></html>',
-        422
-    )
+    # Create a response object with a 422 status code and set the Location header
+    response = Response("", status=422, headers={"Location": location})
     return response
+
+
+# def redirect_with_422(location):
+#     # Create a response with JavaScript to redirect and set the 422 status code
+#     response = make_response(
+#         f'<html><head><script type="text/javascript">'
+#         f'window.location.href="{location}";'
+#         f'</script></head><body>'
+#         f'<p>If you are not redirected, <a href="{location}">click here</a>.</p>'
+#         f'</body></html>',
+#         422
+#     )
+#     return response
 
 
 @app.get("/")
