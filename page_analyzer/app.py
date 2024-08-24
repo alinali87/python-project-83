@@ -90,7 +90,12 @@ def post_urls():
     if not validators.url(url):
         # error case
         flash("Некорректный URL", "msg-error")
-        return redirect(url_for("index", url=url), code=422)
+        messages = get_flashed_messages(with_categories=True)
+        return render_template(
+            "index.html",
+            url=url,
+            messages=messages,
+        ), 422
         # return redirect_with_422(url_for("index", url=url))
     else:
         url_parsed = urlparse(url)
