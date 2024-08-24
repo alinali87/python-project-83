@@ -27,17 +27,17 @@ def redirect_with_422(location):
     return response
 
 
-# def redirect_with_422(location):
-#     # Create a response with JavaScript to redirect and set the 422 status code
-#     response = make_response(
-#         f'<html><head><script type="text/javascript">'
-#         f'window.location.href="{location}";'
-#         f'</script></head><body>'
-#         f'<p>If you are not redirected, <a href="{location}">click here</a>.</p>'
-#         f'</body></html>',
-#         422
-#     )
-#     return response
+def redirect_with_422(location):
+    # Create a response with JavaScript to redirect and set the 422 status code
+    response = make_response(
+        f'<html><head><script type="text/javascript">'
+        f'window.location.href="{location}";'
+        f'</script></head><body>'
+        f'<p>If you are not redirected, <a href="{location}">click here</a>.</p>'
+        f'</body></html>',
+        422
+    )
+    return response
 
 
 @app.get("/")
@@ -90,7 +90,8 @@ def post_urls():
     if not validators.url(url):
         # error case
         flash("Некорректный URL", "msg-error")
-        return redirect_with_422(url_for("index", url=url))
+        return redirect(url_for("index", url=url), code=422)
+        # return redirect_with_422(url_for("index", url=url))
     else:
         url_parsed = urlparse(url)
         url_normalized = f"{url_parsed.scheme}://{url_parsed.netloc}"
