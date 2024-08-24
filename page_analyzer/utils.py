@@ -19,7 +19,7 @@ def parse_response(response: Response) -> dict:
 
     # Get the description
     description = ""
-    meta_tag = soup.find('meta', attrs={'name': 'description'})
+    meta_tag = soup.find('meta', attrs={'name': 'description', "content": True})
     if meta_tag:
         # Get the content attribute
         description = meta_tag.get('content')
